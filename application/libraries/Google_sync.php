@@ -158,9 +158,27 @@ class Google_sync
         array $settings,
     ): Event {
         $event = new Google_Service_Calendar_Event();
-        $event->setSummary(!empty($service) ? $service['name'] : 'Unavailable');
-        $event->setDescription($appointment['notes']);
-        $event->setLocation($appointment['location'] ?? $settings['company_name']);
+        $event->setSummary(!empty($service) ? strtoupper($customer['last_name']) . ' ' . $customer['first_name'] . ' / ' . $customer['custom_field_2'] . ' | ' . (['catherine' => 'CCS', 'chloe' => 'CL', 'sydney' => 'SB'][strtolower($provider['first_name'])] ?? '') : $service['name']);
+        $description = [
+            'Motif : RDV en ligne',
+            'Contact : ',
+            'Description : [RDV en ligne] ' . $service['name'],
+            '',
+            '*** ' . mb_strtoupper(lang('customer')) . ' ***',
+            lang('name') . ' : ' . $customer['first_name'] . ' ' . $customer['last_name'],
+            lang('email') . ' : ' . $customer['email'],
+            lang('phone_number') . ' : ' . ($customer['phone_number'] ?? '-'),
+            lang('address') . ' : ' . $customer['address'] . ', ' . $customer['zip_code'] . ' ' . $customer['city'],
+            '',
+            '*** ANIMAL ***',
+            'Espèce : ' . $customer['custom_field_1'],
+            'Nom : ' . $customer['custom_field_2'],
+            'Âge / Date de naissance : ' . $customer['custom_field_3'],
+            'Sexe : ' . $customer['custom_field_4'],
+            'Commentaires : ' . $appointment['notes']
+        ];
+        $event->setDescription(implode("\n", $description));
+        $event->setLocation('MAS');
 
         $timezone = new DateTimeZone($provider['timezone']);
 
@@ -176,6 +194,7 @@ class Google_sync
 
         $event->attendees = [];
 
+        /*
         $event_provider = new Google_Service_Calendar_EventAttendee();
         $event_provider->setDisplayName($provider['first_name'] . ' ' . $provider['last_name']);
         $event_provider->setEmail($provider['email']);
@@ -187,6 +206,7 @@ class Google_sync
             $event_customer->setEmail($customer['email']);
             $event->attendees[] = $event_customer;
         }
+         */
 
         // Add the new event to the Google Calendar.
         return $this->service->events->insert($provider['settings']['google_calendar'], $event);
@@ -220,9 +240,27 @@ class Google_sync
             $appointment['id_google_calendar'],
         );
 
-        $event->setSummary($service['name']);
-        $event->setDescription($appointment['notes']);
-        $event->setLocation($appointment['location'] ?? $settings['company_name']);
+        $event->setSummary(!empty($service) ? strtoupper($customer['last_name']) . ' ' . $customer['first_name'] . ' / ' . $customer['custom_field_2'] . ' | ' . (['catherine' => 'CCS', 'chloe' => 'CL', 'sydney' => 'SB'][strtolower($provider['first_name'])] ?? '') : $service['name']);
+        $description = [
+            'Motif : RDV en ligne',
+            'Contact : ',
+            'Description : [RDV en ligne] ' . $service['name'],
+            '',
+            '*** ' . mb_strtoupper(lang('customer')) . ' ***',
+            lang('name') . ' : ' . $customer['first_name'] . ' ' . $customer['last_name'],
+            lang('email') . ' : ' . $customer['email'],
+            lang('phone_number') . ' : ' . ($customer['phone_number'] ?? '-'),
+            lang('address') . ' : ' . $customer['address'] . ', ' . $customer['zip_code'] . ' ' . $customer['city'],
+            '',
+            '*** ANIMAL ***',
+            'Espèce : ' . $customer['custom_field_1'],
+            'Nom : ' . $customer['custom_field_2'],
+            'Âge / Date de naissance : ' . $customer['custom_field_3'],
+            'Sexe : ' . $customer['custom_field_4'],
+            'Commentaires : ' . $appointment['notes']
+        ];
+        $event->setDescription(implode("\n", $description));
+        $event->setLocation('MAS');
 
         $timezone = new DateTimeZone($provider['timezone']);
 
@@ -238,6 +276,7 @@ class Google_sync
 
         $event->attendees = [];
 
+        /*
         $event_provider = new Google_Service_Calendar_EventAttendee();
         $event_provider->setDisplayName($provider['first_name'] . ' ' . $provider['last_name']);
         $event_provider->setEmail($provider['email']);
@@ -249,6 +288,7 @@ class Google_sync
             $event_customer->setEmail($customer['email']);
             $event->attendees[] = $event_customer;
         }
+        */
 
         return $this->service->events->update($provider['settings']['google_calendar'], $event->getId(), $event);
     }

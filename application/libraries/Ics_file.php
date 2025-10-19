@@ -62,7 +62,7 @@ class Ics_file
      * @throws CalendarEventException
      * @throws Exception
      */
-    public function get_stream(array $appointment, array $service, array $provider, array $customer): string
+    public function get_stream(array $appointment, array $service, array $provider, array $customer, string $method = 'PUBLISH'): string
     {
         $appointment_timezone = new DateTimeZone($provider['timezone']);
 
@@ -76,39 +76,35 @@ class Ics_file
         $event
             ->setStart($appointment_start)
             ->setEnd($appointment_end)
-            ->setStatus('CONFIRMED')
+            ->setStatus(($method === 'CANCEL') ? 'CANCELLED' : 'CONFIRMED')
             ->setSummary($service['name'])
             ->setUid($appointment['id_caldav_calendar'] ?: $this->generate_uid($appointment['id']));
 
-        if (!empty($service['location'])) {
-            $location = new Location();
-            $location->setName((string) $service['location']);
-            $event->addLocation($location);
-        }
+        $location = new Location();
+        $location->setName('247 avenue Croix de Mounié, 34160 Saint‑Drézéry');
+        $event->addLocation($location);
 
         $description = [
+            $service['description'],
             '',
-            lang('provider'),
+            '*** ' . mb_strtoupper(lang('provider')) . ' ***',
+            lang('name') . ' : ' . $provider['first_name'] . ' ' . $provider['last_name'],
+            lang('email') . ' : ' . 'contact@veterinairesaintdrezery.fr',
+            lang('phone_number') . ' : ' . '04 99 61 40 52',
+            lang('address') . ' : ' . '247 avenue Croix de Mounié, 34160 Saint‑Drézéry',
             '',
-            lang('name') . ': ' . $provider['first_name'] . ' ' . $provider['last_name'],
-            lang('email') . ': ' . $provider['email'],
-            lang('phone_number') . ': ' . $provider['phone_number'],
-            lang('address') . ': ' . $provider['address'],
-            lang('city') . ': ' . $provider['city'],
-            lang('zip_code') . ': ' . $provider['zip_code'],
+            '*** ' . mb_strtoupper(lang('customer')) . ' ***',
+            lang('name') . ' : ' . $customer['first_name'] . ' ' . $customer['last_name'],
+            lang('email') . ' : ' . $customer['email'],
+            lang('phone_number') . ' : ' . ($customer['phone_number'] ?? '-'),
+            lang('address') . ' : ' . $customer['address'] . ', ' . $customer['zip_code'] . ' ' . $customer['city'],
             '',
-            lang('customer'),
-            '',
-            lang('name') . ': ' . $customer['first_name'] . ' ' . $customer['last_name'],
-            lang('email') . ': ' . $customer['email'],
-            lang('phone_number') . ': ' . ($customer['phone_number'] ?? '-'),
-            lang('address') . ': ' . $customer['address'],
-            lang('city') . ': ' . $customer['city'],
-            lang('zip_code') . ': ' . $customer['zip_code'],
-            '',
-            lang('notes'),
-            '',
-            $appointment['notes'],
+            '*** ANIMAL ***',
+            'Espèce : ' . $customer['custom_field_1'],
+            'Nom : ' . $customer['custom_field_2'],
+            'Âge / Date de naissance : ' . $customer['custom_field_3'],
+            'Sexe : ' . $customer['custom_field_4'],
+            'Commentaires : ' . $appointment['notes']
         ];
 
         $event->setDescription(implode("\\n", $description));
@@ -124,8 +120,8 @@ class Ics_file
         $attendee
             ->setCalendarUserType('INDIVIDUAL')
             ->setRole('REQ-PARTICIPANT')
-            ->setParticipationStatus('NEEDS-ACTION')
-            ->setRsvp('TRUE');
+            ->setParticipationStatus('ACCEPTED')
+            ->setRsvp('FALSE');
         $event->addAttendee($attendee);
 
         $alarm = new CalendarAlarm();
@@ -147,10 +143,7 @@ class Ics_file
         $event->addAlarm($alarm);
 
         $attendee = new Attendee(new Formatter());
-
-        if (isset($provider['email']) && !empty($provider['email'])) {
-            $attendee->setValue($provider['email']);
-        }
+        $attendee->setValue('contact@veterinairesaintdrezery.fr');
 
         $attendee->setName($provider['first_name'] . ' ' . $provider['last_name']);
         $attendee
@@ -163,7 +156,7 @@ class Ics_file
         // Set the organizer.
         $organizer = new Organizer(new Formatter());
 
-        $organizer->setValue($provider['email'])->setName($provider['first_name'] . ' ' . $provider['last_name']);
+        $organizer->setValue('contact@veterinairesaintdrezery.fr')->setName($provider['first_name'] . ' ' . $provider['last_name']);
 
         $event->setOrganizer($organizer);
 
@@ -173,6 +166,7 @@ class Ics_file
         $calendar
             ->setProdId('-//EasyAppointments//Open Source Web Scheduler//EN')
             ->setTimezone(new DateTimeZone($provider['timezone']))
+            ->setMethod($method)
             ->addEvent($event);
 
         // Setup exporter.

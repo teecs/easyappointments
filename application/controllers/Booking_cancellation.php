@@ -57,7 +57,7 @@ class Booking_cancellation extends EA_Controller
 
             $cancellation_reason = request('cancellation_reason');
 
-            if ($this->input->method() !== 'post' || empty($cancellation_reason)) {
+            if ($this->input->method() !== 'post') {
                 abort(403, 'Forbidden');
             }
 

@@ -114,7 +114,7 @@ class Email_messages
 
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
 
-        $php_mailer->addStringAttachment($ics_stream, 'invitation.ics', PHPMailer::ENCODING_BASE64, 'text/calendar');
+        $php_mailer->addStringAttachment($ics_stream, 'invitation.ics', PHPMailer::ENCODING_BASE64, 'text/calendar; method=PUBLISH; charset=UTF-8');
 
         $php_mailer->send();
     }
@@ -141,7 +141,9 @@ class Email_messages
         array $service,
         array $customer,
         array $settings,
+        string $subject,
         string $recipient_email,
+        string $ics_stream,
         ?string $reason = null,
         ?string $timezone = null,
     ): void {
@@ -164,20 +166,21 @@ class Email_messages
         $html = $this->CI->load->view(
             'emails/appointment_deleted_email',
             [
+                'subject' => $subject,
+                'reason' => $reason,
                 'appointment' => $appointment,
                 'service' => $service,
                 'provider' => $provider,
                 'customer' => $customer,
                 'settings' => $settings,
                 'timezone' => $timezone,
-                'reason' => $reason,
             ],
             true,
         );
 
-        $subject = lang('appointment_cancelled_title');
-
         $php_mailer = $this->get_php_mailer($recipient_email, $subject, $html);
+
+        $php_mailer->addStringAttachment($ics_stream, 'invitation.ics', PHPMailer::ENCODING_BASE64, 'text/calendar; method=CANCEL; charset=UTF-8');
 
         $php_mailer->send();
     }

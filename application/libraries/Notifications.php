@@ -70,6 +70,16 @@ class Notifications
 
             $ics_stream = $this->CI->ics_file->get_stream($appointment, $service, $provider, $customer);
 
+            $fmt = new IntlDateFormatter(
+                'fr_FR',
+                IntlDateFormatter::NONE,
+                IntlDateFormatter::NONE,
+                $customer['timezone'],
+                IntlDateFormatter::GREGORIAN,
+                "EEEE d MMMM 'à' HH'h'mm"
+            );
+            $date_str = $fmt->format(new DateTime($appointment['start_datetime'], new DateTimeZone($customer['timezone'])));
+
             // Notify customer.
             $send_customer =
                 !empty($customer['email']) && filter_var(setting('customer_notifications'), FILTER_VALIDATE_BOOLEAN);
@@ -77,8 +87,8 @@ class Notifications
             if ($send_customer === true) {
                 config(['language' => $customer['language']]);
                 $this->CI->lang->load('translations');
-                $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_booked');
-                $message = $manage_mode ? '' : lang('thank_you_for_appointment');
+                $subject = $manage_mode ? 'RDV modifié le ' . $date_str : 'RDV confirmé le ' . $date_str;
+                $message = $manage_mode ? lang('appointment_details_changed') : lang('thank_you_for_appointment');
 
                 try {
                     $this->CI->email_messages->send_appointment_saved(
@@ -108,8 +118,8 @@ class Notifications
             if ($send_provider === true) {
                 config(['language' => $provider['language']]);
                 $this->CI->lang->load('translations');
-                $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_added_to_your_plan');
-                $message = $manage_mode ? '' : lang('appointment_link_description');
+                $subject = $manage_mode ? 'RDV modifié le ' . $date_str : 'RDV confirmé le ' . $date_str;
+                $message = $manage_mode ? lang('appointment_details_changed') : lang('thank_you_for_appointment');
 
                 try {
                     $this->CI->email_messages->send_appointment_saved(
@@ -140,8 +150,8 @@ class Notifications
 
                 config(['language' => $admin['language']]);
                 $this->CI->lang->load('translations');
-                $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_added_to_your_plan');
-                $message = $manage_mode ? '' : lang('appointment_link_description');
+                $subject = $manage_mode ? 'RDV modifié le ' . $date_str : 'RDV confirmé le ' . $date_str;
+                $message = $manage_mode ? lang('appointment_details_changed') : lang('thank_you_for_appointment');
 
                 try {
                     $this->CI->email_messages->send_appointment_saved(
@@ -176,8 +186,8 @@ class Notifications
 
                 config(['language' => $secretary['language']]);
                 $this->CI->lang->load('translations');
-                $subject = $manage_mode ? lang('appointment_details_changed') : lang('appointment_added_to_your_plan');
-                $message = $manage_mode ? '' : lang('appointment_link_description');
+                $subject = $manage_mode ? 'RDV modifié le ' . $date_str : 'RDV confirmé le ' . $date_str;
+                $message = $manage_mode ? lang('appointment_details_changed') : lang('thank_you_for_appointment');
 
                 try {
                     $this->CI->email_messages->send_appointment_saved(
@@ -225,6 +235,18 @@ class Notifications
         try {
             $current_language = config('language');
 
+            $ics_stream = $this->CI->ics_file->get_stream($appointment, $service, $provider, $customer, 'CANCEL');
+
+            $fmt = new IntlDateFormatter(
+                'fr_FR',
+                IntlDateFormatter::NONE,
+                IntlDateFormatter::NONE,
+                $customer['timezone'],
+                IntlDateFormatter::GREGORIAN,
+                "EEEE d MMMM 'à' HH'h'mm"
+            );
+            $date_str = $fmt->format(new DateTime($appointment['start_datetime'], new DateTimeZone($customer['timezone'])));
+
             // Notify provider.
             $send_provider = filter_var(
                 $this->CI->providers_model->get_setting($provider['id'], 'notifications'),
@@ -234,6 +256,7 @@ class Notifications
             if ($send_provider === true) {
                 config(['language' => $provider['language']]);
                 $this->CI->lang->load('translations');
+                $subject = 'RDV annulé le ' . $date_str;
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -242,7 +265,9 @@ class Notifications
                         $service,
                         $customer,
                         $settings,
+                        $subject,
                         $provider['email'],
+                        $ics_stream,
                         $cancellation_reason,
                         $provider['timezone'],
                     );
@@ -258,6 +283,7 @@ class Notifications
             if ($send_customer === true) {
                 config(['language' => $customer['language']]);
                 $this->CI->lang->load('translations');
+                $subject = 'RDV annulé le ' . $date_str;
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -266,7 +292,9 @@ class Notifications
                         $service,
                         $customer,
                         $settings,
+                        $subject,
                         $customer['email'],
+                        $ics_stream,
                         $cancellation_reason,
                         $customer['timezone'],
                     );
@@ -285,6 +313,7 @@ class Notifications
 
                 config(['language' => $admin['language']]);
                 $this->CI->lang->load('translations');
+                $subject = 'RDV annulé le ' . $date_str;
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -293,7 +322,9 @@ class Notifications
                         $service,
                         $customer,
                         $settings,
+                        $subject,
                         $admin['email'],
+                        $ics_stream,
                         $cancellation_reason,
                         $admin['timezone'],
                     );
@@ -316,6 +347,7 @@ class Notifications
 
                 config(['language' => $secretary['language']]);
                 $this->CI->lang->load('translations');
+                $subject = 'RDV annulé le ' . $date_str;
 
                 try {
                     $this->CI->email_messages->send_appointment_deleted(
@@ -324,7 +356,9 @@ class Notifications
                         $service,
                         $customer,
                         $settings,
+                        $subject,
                         $secretary['email'],
+                        $ics_stream,
                         $cancellation_reason,
                         $secretary['timezone'],
                     );
@@ -336,9 +370,9 @@ class Notifications
             log_message(
                 'error',
                 'Notifications - Could not email cancellation details of appointment (' .
-                    ($appointment['id'] ?? '-') .
-                    ') : ' .
-                    $e->getMessage(),
+                ($appointment['id'] ?? '-') .
+                ') : ' .
+                $e->getMessage(),
             );
             log_message('error', $e->getTraceAsString());
         } finally {

@@ -519,10 +519,6 @@ App.Pages.Booking = (function () {
                     {
                         text: lang('confirm'),
                         click: () => {
-                            if ($cancellationReason.val() === '') {
-                                $cancellationReason.css('border', '2px solid #DC3545');
-                                return;
-                            }
                             $cancelAppointmentForm.find('#hidden-cancellation-reason').val($cancellationReason.val());
                             $cancelAppointmentForm.submit();
                         },

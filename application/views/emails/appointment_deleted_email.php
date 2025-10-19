@@ -13,178 +13,194 @@
 ?>
 
 <html lang="en">
+
 <head>
-    <title><?= lang('appointment_cancelled_title') ?> | Easy!Appointments</title>
+    <title>
+        <?= lang('appointment_cancelled_title') ?> | Easy!Appointments
+    </title>
 </head>
+
 <body style="font: 13px arial, helvetica, tahoma;">
 
-<div class="email-container" style="width: 650px; border: 1px solid #eee; margin: 30px auto;">
-    <div id="header"
-         style="background-color: <?= $settings['company_color'] ?? '#429a82' ?>; height: 45px; padding: 10px 15px;">
-        <strong id="logo" style="color: white; font-size: 20px; margin-top: 10px; display: inline-block">
-            <?= e($settings['company_name']) ?>
-        </strong>
-    </div>
+    <div class="email-container" style="width: 650px; border: 1px solid #eee; margin: 30px auto;">
+        <div id="header"
+            style="background-color: <?= $settings['company_color'] ?? '#429a82' ?>; height: 45px; padding: 10px 15px;">
+            <strong id="logo" style="color: white; font-size: 20px; margin-top: 10px; display: inline-block">
+                <?= e($settings['company_name']) ?>
+            </strong>
+        </div>
 
-    <div id="content" style="padding: 10px 15px; min-height: 400px;">
-        <h2>
-            <?= lang('appointment_cancelled_title') ?>
-        </h2>
+        <div id="content" style="padding: 10px 15px; min-height: 400px;">
+            <h2>
+                <?= $subject ?>
+            </h2>
 
-        <p>
-            <?= lang('appointment_removed_from_schedule') ?>
-        </p>
+            <p>
+                <?= lang('appointment_removed_from_schedule') ?>
+            </p>
 
-        <h2>
-            <?= lang('appointment_details_title') ?>
-        </h2>
+            <?php if (!empty($reason)): ?>
+                <h2>
+                    <?= lang('reason') ?>
+                </h2>
 
-        <table id="appointment-details">
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('service') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= e($service['name']) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('provider') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= e($provider['first_name'] . ' ' . $provider['last_name']) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('start') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= format_date_time($appointment['start_datetime']) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('end') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= format_date_time($appointment['end_datetime']) ?>
-
-                </td>
-            </tr>
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('timezone') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= format_timezone($timezone) ?>
-                </td>
-            </tr>
-
-            <?php if (!empty($appointment['status'])): ?>
-                <tr>
-                    <td class="label" style="padding: 3px;font-weight: bold;">
-                        <?= lang('status') ?>
-                    </td>
-                    <td style="padding: 3px;">
-                        <?= e($appointment['status']) ?>
-                    </td>
-                </tr>
+                <p>
+                    <?= e($reason) ?>
+                </p>
             <?php endif; ?>
 
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('description') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= e($service['description']) ?>
-                </td>
-            </tr>
+            <h2>
+                <?= lang('appointment_details_title') ?>
+            </h2>
 
-            <?php if (!empty($appointment['location'])): ?>
+            <table id="appointment-details">
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('service') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($service['name']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('description') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($service['description']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('provider') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($provider['first_name'] . ' ' . $provider['last_name']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('start') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= format_date_time($appointment['start_datetime']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('end') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= format_date_time($appointment['end_datetime']) ?>
+
+                    </td>
+                </tr>
                 <tr>
                     <td class="label" style="padding: 3px;font-weight: bold;">
                         <?= lang('location') ?>
                     </td>
                     <td style="padding: 3px;">
-                        <?= e($appointment['location']) ?>
+                        247 avenue Croix de Mounié, 34160 Saint‑Drézéry
                     </td>
                 </tr>
-            <?php endif; ?>
+            </table>
 
-            <?php if (!empty($appointment['notes'])): ?>
+            <h2>
+                <?= lang('customer_details_title') ?>
+            </h2>
+
+            <table id="customer-details">
                 <tr>
                     <td class="label" style="padding: 3px;font-weight: bold;">
-                        <?= lang('notes') ?>
+                        <?= lang('name') ?>
                     </td>
                     <td style="padding: 3px;">
-                        <?= e($appointment['notes']) ?>
+                        <?= e($customer['first_name'] . ' ' . $customer['last_name']) ?>
                     </td>
                 </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('email') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($customer['email']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('phone_number') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($customer['phone_number']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        <?= lang('address') ?>
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($customer['address']) ?>, <?= e($customer['zip_code']) ?> <?= e($customer['city']) ?>
+                    </td>
+                </tr>
+            </table>
+
+            <h2>Informations de l'animal</h2>
+
+            <table id="animal-details">
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        Espèce
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($customer['custom_field_1']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        Nom
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($customer['custom_field_2']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        Âge / Date de naissance
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($customer['custom_field_3']) ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label" style="padding: 3px;font-weight: bold;">
+                        Sexe
+                    </td>
+                    <td style="padding: 3px;">
+                        <?= e($customer['custom_field_4']) ?>
+                    </td>
+                </tr>
+            </table>
+
+            <?php if (!empty($appointment['notes'])): ?>
+                <h2>Commentaires</h2>
+
+                <p><?= e($appointment['notes']) ?></p>
             <?php endif; ?>
-        </table>
+        </div>
 
-        <h2>
-            <?= lang('customer_details_title') ?>
-        </h2>
-
-        <table id="customer-details">
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('name') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= e($customer['first_name'] . ' ' . $customer['last_name']) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('email') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= e($customer['email']) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('phone_number') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= e($customer['phone_number']) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="label" style="padding: 3px;font-weight: bold;">
-                    <?= lang('address') ?>
-                </td>
-                <td style="padding: 3px;">
-                    <?= e($customer['address']) ?>
-                </td>
-            </tr>
-        </table>
-
-        <h2>
-            <?= lang('reason') ?>
-        </h2>
-
-        <p>
-            <?= e($reason) ?>
-        </p>
-    </div>
-
-    <div id="footer" style="padding: 10px; text-align: center; margin-top: 10px;
+        <div id="footer" style="padding: 10px; text-align: center; margin-top: 10px;
                 border-top: 1px solid #EEE; background: #FAFAFA;">
-        Powered by
-        <a href="https://easyappointments.org" style="text-decoration: none;">
-            Easy!Appointments
-        </a>
-        |
-        <a href="<?= e($settings['company_link']) ?>" style="text-decoration: none;">
-            <?= e($settings['company_name']) ?>
-        </a>
+            Powered by
+            <a href="https://easyappointments.org" style="text-decoration: none;">
+                Easy!Appointments
+            </a>
+            |
+            <a href="<?= e($settings['company_link']) ?>" style="text-decoration: none;">
+                <?= e($settings['company_name']) ?>
+            </a>
+        </div>
     </div>
-</div>
 
 </body>
+
 </html>

@@ -174,13 +174,11 @@ class Google extends EA_Controller
 
                     $is_different =
                         $local_event_start !== $google_event_start->getTimestamp() ||
-                        $local_event_end !== $google_event_end->getTimestamp() ||
-                        $local_event['notes'] !== $google_event_notes;
+                        $local_event_end !== $google_event_end->getTimestamp();
 
                     if ($is_different) {
                         $local_event['start_datetime'] = $google_event_start->format('Y-m-d H:i:s');
                         $local_event['end_datetime'] = $google_event_end->format('Y-m-d H:i:s');
-                        $local_event['notes'] = $google_event_notes;
                         $events_model->save($local_event);
                     }
                 } catch (Throwable) {
