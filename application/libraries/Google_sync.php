@@ -206,7 +206,7 @@ class Google_sync
             $event_customer->setEmail($customer['email']);
             $event->attendees[] = $event_customer;
         }
-         */
+        */
 
         // Add the new event to the Google Calendar.
         return $this->service->events->insert($provider['settings']['google_calendar'], $event);
